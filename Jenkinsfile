@@ -8,7 +8,7 @@ pipeline {
     }
 
     stages {
-        stage('Build') {
+        stage('Clean Compile') {
             steps {
                 // Get some code from a GitHub repository
                 git url: 'https://github.com/matthcol/movieapijava2021.git',
@@ -16,7 +16,16 @@ pipeline {
                 
 
                 // Run Maven on a Unix agent.
-                sh "mvn -Dmaven.test.failure.ignore=true clean package"
+                sh "/home/srvadmin/tools/apache-maven-3.8.1/bin/mvn clean compile"
+
+                // To run Maven on a Windows agent, use
+                // bat "mvn -Dmaven.test.failure.ignore=true clean package"
+            }          
+        }
+		 stage('Test') {
+            steps {              
+                // Run Maven on a Unix agent.
+                sh "/home/srvadmin/tools/apache-maven-3.8.1/bin/mvn test"
 
                 // To run Maven on a Windows agent, use
                 // bat "mvn -Dmaven.test.failure.ignore=true clean package"
@@ -29,6 +38,15 @@ pipeline {
                     junit '**/target/surefire-reports/TEST-*.xml'
                     archiveArtifacts 'target/*.jar'
                 }
+            }
+        }
+		 stage('Build') {
+            steps {
+                // Run Maven on a Unix agent.
+                sh "/home/srvadmin/tools/apache-maven-3.8.1/bin/mvn -DskipTests package"
+
+                // To run Maven on a Windows agent, use
+                // bat "mvn -Dmaven.test.failure.ignore=true clean package"
             }
         }
     }
